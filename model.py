@@ -1,10 +1,12 @@
 import csv
 import os
 import pickle
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List
 
+from sklearn.exceptions import InconsistentVersionWarning
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics.pairwise import cosine_similarity
@@ -75,8 +77,13 @@ def train_and_save_model(model_path: Path = MODEL_PATH) -> Pipeline:
 def load_model(model_path: Path = MODEL_PATH) -> Pipeline:
     if not model_path.exists():
         return train_and_save_model(model_path)
-    with model_path.open("rb") as file:
-        return pickle.load(file)
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", InconsistentVersionWarning)
+            with model_path.open("rb") as file:
+                return pickle.load(file)
+    except (AttributeError, InconsistentVersionWarning, ValueError, pickle.UnpicklingError):
+        return train_and_save_model(model_path)
 
 
 def calculate_similarity(resume_text: str, job_description: str) -> float:

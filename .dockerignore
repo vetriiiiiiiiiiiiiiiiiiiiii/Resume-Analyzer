@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+*.log
+.env
+.venv/
+venv/
+.git/
+uploads/*
+models/*.pkl
+.streamlit/
