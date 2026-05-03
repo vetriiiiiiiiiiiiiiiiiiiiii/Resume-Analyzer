@@ -15,7 +15,7 @@ The original project provided a Flask prototype for resume parsing and TF-IDF co
 - Compare resume skills against job-description skills.
 - Show matched skills, missing skills, keyword coverage, section detection, word count, and model confidence.
 - Estimate an ATS score from real resume/JD evidence: similarity, keyword coverage, sections, length, and skill density.
-- Generate GenAI feedback using Ollama `llama3` first, then OpenAI API as fallback.
+- Generate GenAI feedback using Ollama `llama3.1:latest` first, then OpenAI API as fallback.
 - Serve JSON responses through Flask.
 - Optional Streamlit frontend.
 - Docker and DockerHub deployment ready.
@@ -78,8 +78,22 @@ http://localhost:5000/health
 Primary provider: Ollama.
 
 ```bash
-ollama pull llama3
-ollama run llama3
+ollama pull llama3.1:latest
+ollama run llama3.1:latest
+```
+
+On Windows PowerShell (recommended when GPU causes CUDA errors):
+
+```powershell
+# Start Ollama server in CPU mode
+$env:OLLAMA_LLM_LIBRARY="cpu"
+ollama serve
+
+# In a second terminal
+ollama pull llama3.1:latest
+
+# Optional: match app default explicitly
+$env:OLLAMA_MODEL="llama3.1:latest"
 ```
 
 Fallback provider: OpenAI API.
@@ -87,6 +101,13 @@ Fallback provider: OpenAI API.
 ```bash
 export OPENAI_API_KEY="your-api-key"
 export OPENAI_MODEL="gpt-4o-mini"
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:OPENAI_API_KEY="your-api-key"
+$env:OPENAI_MODEL="gpt-4o-mini"
 ```
 
 If neither provider is available, the app returns deterministic local fallback feedback.

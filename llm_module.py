@@ -1,5 +1,5 @@
 import os
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import requests
 
@@ -38,10 +38,11 @@ Return structured bullet points only.
 """
 
 
-def call_ollama(prompt: str, model: str = "llama3") -> str:
+def call_ollama(prompt: str, model: Optional[str] = None) -> str:
+    selected_model = model or os.getenv("OLLAMA_MODEL", "llama3.1:latest")
     response = requests.post(
         "http://localhost:11434/api/generate",
-        json={"model": model, "prompt": prompt, "stream": False},
+        json={"model": selected_model, "prompt": prompt, "stream": False},
         timeout=45,
     )
     response.raise_for_status()
