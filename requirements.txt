@@ -1,5 +1,7 @@
-flask 
-os
-PyPDF2
-docx2txt
-sklearn
+Flask>=3.0,<4
+PyMuPDF>=1.26,<2
+docx2txt>=0.8,<1
+scikit-learn>=1.5,<2
+requests>=2.32,<3
+streamlit>=1.39,<2
+werkzeug>=3.0,<4
