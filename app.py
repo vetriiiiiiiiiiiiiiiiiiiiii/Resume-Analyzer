@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, render_template, request
 
 from llm_module import generate_feedback
 from model import analyze_resume
@@ -15,9 +15,40 @@ def error_response(message: str, status_code: int = 400):
     return jsonify({"error": message}), status_code
 
 
-@app.get("/")
+@app.get("/health")
 def health():
     return jsonify({"status": "ok", "service": "AI Resume Analyzer"})
+
+
+@app.get("/")
+def home():
+    return render_template("index.html")
+
+
+@app.post("/website/analyze")
+def website_analyze():
+    try:
+        resume_text = request.form.get("resume_text", "")
+        uploaded_file = request.files.get("resume")
+        if uploaded_file and uploaded_file.filename:
+            path = save_upload(uploaded_file, app.config["UPLOAD_FOLDER"])
+            resume_text = extract_text(path)
+
+        resume_text = require_text(resume_text, "resume text or resume file")
+        job_description = request.form.get("job_description", "")
+        analysis = analyze_resume(resume_text, job_description).to_dict()
+        llm_feedback = generate_feedback(resume_text, job_description, analysis)
+
+        return render_template(
+            "index.html",
+            analysis=analysis,
+            feedback=llm_feedback.get("feedback"),
+            provider=llm_feedback.get("provider"),
+            warning=llm_feedback.get("warning"),
+            job_description=job_description,
+        )
+    except Exception as exc:
+        return render_template("index.html", error=str(exc)), 400
 
 
 @app.post("/upload_resume")

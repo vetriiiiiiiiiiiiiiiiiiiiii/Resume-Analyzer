@@ -59,10 +59,16 @@ python model.py
 python app.py
 ```
 
-The Flask API runs at:
+The Flask website runs at:
 
 ```text
 http://localhost:5000
+```
+
+The JSON health check runs at:
+
+```text
+http://localhost:5000/health
 ```
 
 ## LLM Setup
@@ -85,10 +91,16 @@ If neither provider is available, the app returns deterministic local fallback f
 
 ## API Usage
 
+Open the complete website:
+
+```text
+http://localhost:5000
+```
+
 Health check:
 
 ```bash
-curl http://localhost:5000/
+curl http://localhost:5000/health
 ```
 
 Upload and extract resume text:
