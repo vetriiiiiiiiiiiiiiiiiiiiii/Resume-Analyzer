@@ -12,7 +12,9 @@ The original project provided a Flask prototype for resume parsing and TF-IDF co
 - Predict a likely job role using TF-IDF plus Logistic Regression.
 - Calculate resume-to-job-description similarity with TF-IDF and cosine similarity.
 - Extract common technical skills.
-- Estimate an ATS score.
+- Compare resume skills against job-description skills.
+- Show matched skills, missing skills, keyword coverage, section detection, word count, and model confidence.
+- Estimate an ATS score from real resume/JD evidence: similarity, keyword coverage, sections, length, and skill density.
 - Generate GenAI feedback using Ollama `llama3` first, then OpenAI API as fallback.
 - Serve JSON responses through Flask.
 - Optional Streamlit frontend.
@@ -132,7 +134,12 @@ Example response:
 {
   "analysis": {
     "predicted_role": "Data Scientist",
+    "confidence": 41.62,
     "skills": ["python", "sql", "scikit-learn"],
+    "matched_skills": ["python", "sql"],
+    "missing_skills": ["tableau"],
+    "keyword_coverage": 66.67,
+    "word_count": 486,
     "score": 42.75,
     "ats_score": 58
   },

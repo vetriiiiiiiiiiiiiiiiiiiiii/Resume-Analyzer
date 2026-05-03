@@ -189,7 +189,7 @@
 
     .metrics {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 12px;
       margin-bottom: 18px;
     }
@@ -237,6 +237,52 @@
       padding: 7px 10px;
       font-size: 13px;
       font-weight: 700;
+    }
+
+    .skill.missing {
+      background: #fff4ed;
+      color: #9a4a20;
+      border-color: #f1c7ad;
+    }
+
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 16px 0 20px;
+    }
+
+    .evidence-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfcfe;
+    }
+
+    .evidence-box h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+    }
+
+    .section-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .section-item {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 7px 9px;
+      border-radius: 8px;
+      background: #f0f4f8;
+      overflow-wrap: anywhere;
+    }
+
+    .section-item.present {
+      color: var(--brand-dark);
+      background: var(--soft);
     }
 
     .feedback {
@@ -323,6 +369,10 @@
         grid-template-columns: 1fr;
       }
 
+      .evidence-grid {
+        grid-template-columns: 1fr;
+      }
+
       .topbar {
         align-items: flex-start;
         flex-direction: column;
@@ -382,6 +432,29 @@
               <span>ATS Score</span>
               <strong>{{ analysis.ats_score }}/100</strong>
             </div>
+            <div class="metric">
+              <span>Confidence</span>
+              <strong>{{ analysis.confidence }}%</strong>
+            </div>
+          </div>
+
+          <div class="metrics">
+            <div class="metric">
+              <span>Keyword Coverage</span>
+              <strong>{{ analysis.keyword_coverage }}%</strong>
+            </div>
+            <div class="metric">
+              <span>Word Count</span>
+              <strong>{{ analysis.word_count }}</strong>
+            </div>
+            <div class="metric">
+              <span>Matched Skills</span>
+              <strong>{{ analysis.matched_skills|length }}</strong>
+            </div>
+            <div class="metric">
+              <span>Missing Skills</span>
+              <strong>{{ analysis.missing_skills|length }}</strong>
+            </div>
           </div>
 
           <h2 class="section-title">Detected Skills</h2>
@@ -391,6 +464,41 @@
             {% else %}
               <span class="hint">No common skills detected.</span>
             {% endfor %}
+          </div>
+
+          <div class="evidence-grid">
+            <div class="evidence-box">
+              <h3>Matched Job Skills</h3>
+              <div class="skills">
+                {% for skill in analysis.matched_skills %}
+                  <span class="skill">{{ skill }}</span>
+                {% else %}
+                  <span class="hint">No direct matches with the pasted job description.</span>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="evidence-box">
+              <h3>Missing Job Skills</h3>
+              <div class="skills">
+                {% for skill in analysis.missing_skills %}
+                  <span class="skill missing">{{ skill }}</span>
+                {% else %}
+                  <span class="hint">No obvious missing skills from the pasted job description.</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <div class="evidence-box">
+            <h3>Resume Sections Detected</h3>
+            <div class="section-list">
+              {% for name, present in analysis.sections.items() %}
+                <span class="section-item {% if present %}present{% endif %}">
+                  {{ "Found" if present else "Missing" }}: {{ name|title }}
+                </span>
+              {% endfor %}
+            </div>
           </div>
 
           <h2 class="section-title">Career Feedback</h2>

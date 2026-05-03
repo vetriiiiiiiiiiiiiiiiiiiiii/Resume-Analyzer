@@ -19,7 +19,12 @@ def build_prompt(resume_text: str, job_description: str, analysis: Dict[str, obj
 
 ML analysis:
 - Predicted role: {analysis.get("predicted_role")}
+- Model confidence: {analysis.get("confidence")}
 - Extracted skills: {", ".join(analysis.get("skills", []))}
+- Matched job skills: {", ".join(analysis.get("matched_skills", []))}
+- Missing job skills: {", ".join(analysis.get("missing_skills", []))}
+- Section detection: {analysis.get("sections")}
+- Keyword coverage: {analysis.get("keyword_coverage")}
 - Similarity score: {analysis.get("score")}
 - ATS score estimate: {analysis.get("ats_score")}
 
@@ -67,27 +72,39 @@ def call_openai(prompt: str) -> str:
 
 def fallback_feedback(analysis: Dict[str, object]) -> str:
     skills: List[str] = list(analysis.get("skills", []))
+    matched: List[str] = list(analysis.get("matched_skills", []))
+    missing: List[str] = list(analysis.get("missing_skills", []))
+    sections: Dict[str, bool] = dict(analysis.get("sections", {}))
     skill_text = ", ".join(skills[:8]) if skills else "No explicit technical skills detected"
+    matched_text = ", ".join(matched) if matched else "No direct JD skill matches detected"
+    missing_text = ", ".join(missing[:10]) if missing else "No obvious skill gaps from the provided JD"
+    missing_sections = [name for name, present in sections.items() if not present]
+    section_text = ", ".join(missing_sections) if missing_sections else "All key resume sections were detected"
     role = analysis.get("predicted_role", "the target role")
     score = analysis.get("score", 0)
     ats_score = analysis.get("ats_score", 0)
+    confidence = analysis.get("confidence", 0)
+    coverage = analysis.get("keyword_coverage", 0)
 
     return f"""Resume Feedback
-- The resume appears most aligned with {role}.
+- The resume appears most aligned with {role} with {confidence}% model confidence.
 - Detected skills: {skill_text}.
-- Resume-to-job match score is {score}%.
+- Resume-to-job semantic match score is {score}%.
+- Job keyword coverage is {coverage}%.
 
 Skill Gap Analysis
-- Add missing role-specific tools, measurable project outcomes, and domain keywords from the job description.
-- Strengthen evidence for the highest-priority skills with project or work examples.
+- Matched job skills: {matched_text}.
+- Missing or weak job skills: {missing_text}.
+- Add concrete project or work evidence for the highest-priority missing skills.
 
 ATS Score Estimate
 - Estimated ATS score: {ats_score}/100.
-- Improve section headings, keyword coverage, and quantified impact statements.
+- Missing resume sections: {section_text}.
+- Improve keyword coverage, standard section headings, and quantified impact statements.
 
 Career Suggestions
 - Target {role} roles and adjacent positions that match the detected skills.
-- Build one portfolio project that mirrors the target job description.
+- Build one portfolio project that mirrors the target job description and explicitly uses missing JD skills.
 
 Resume Improvements
 - Use clear sections: Summary, Skills, Experience, Projects, Education, Certifications.
